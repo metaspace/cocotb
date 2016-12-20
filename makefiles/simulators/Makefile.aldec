@@ -90,7 +90,11 @@ endif
 
 # Create a TCL script based on the list of $(VERILOG_SOURCES)
 $(SIM_BUILD)/runsim.tcl : $(VERILOG_SOURCES) $(VHDL_SOURCES) $(SIM_BUILD)
-	echo "alib $(RTL_LIBRARY)" > $@
+	echo "" > $@
+ifdef SCRIPT_FILE_HEADER
+	echo "do $(SCRIPT_FILE_HEADER)" >> $@
+endif
+	echo "alib $(RTL_LIBRARY)" >> $@
 	echo "set worklib $(RTL_LIBRARY)" >> $@
 ifneq ($(VHDL_SOURCES),)
 	echo "acom $(ACOM_ARGS) $(VHDL_SOURCES)" >> $@
