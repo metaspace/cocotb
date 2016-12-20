@@ -29,6 +29,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. '''
 All things relating to regression capabilities
 """
 
+import traceback
 import time
 import logging
 import inspect
@@ -116,10 +117,12 @@ class RegressionManager(object):
         for module_name in self._modules:
             try:
                 module = _my_import(module_name)
-            except ImportError:
+            except ImportError as e:
                 self.log.critical("Failed to import module %s", module_name)
                 self.log.info("MODULE variable was \"%s\"",
                                                     ",".join(self._modules))
+                self.log.info(os.environ)
+                self.log.info(e)
                 raise
 
             if self._functions:
