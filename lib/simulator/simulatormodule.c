@@ -54,6 +54,28 @@ void DROP_GIL(PyGILState_STATE state)
     releases++;
 }
 
+gpi_sim_hdl
+to_hdl(PyObject *pPyObj) {
+    gpi_sim_hdl hdl;
+    // In python 2.x pSohHdl is PyLong on 64bit systems, Pyint on 32bit systems
+#if PY_VERSION_HEX < 0x03000000
+        if (PyLong_Check(pPyObj)) {
+            hdl = (gpi_sim_hdl)PyLong_AsUnsignedLong(pPyObj);
+        }
+        else if (PyInt_Check(pPyObj)) {
+            hdl = (gpi_sim_hdl)PyInt_AsLong(pPyObj);
+        }
+        else {
+            PyErr_SetString(PyExc_RuntimeError, "Failed to deregister callback!");
+            return NULL;
+        }
+        
+#else  // In python3.x all integers are PyLong
+        hdl = (gpi_sim_hdl)PyLong_AsVoidPtr(pPyObj);
+#endif
+        return hdl;
+}
+
 /**
  * @name    Callback Handling
  * @brief   Handle a callback coming from GPI
@@ -414,7 +436,7 @@ static PyObject *register_value_change_callback(PyObject *self, PyObject *args) 
     }
 
     PyObject *pSihHdl = PyTuple_GetItem(args, 0);
-    sig_hdl = (gpi_sim_hdl)PyLong_AsUnsignedLong(pSihHdl);
+    sig_hdl = to_hdl(pSihHdl);
 
     // Extract the callback function
     function = PyTuple_GetItem(args, 1);
@@ -953,24 +975,7 @@ static PyObject *deregister_callback(PyObject *self, PyObject *args)
 
     pSihHdl = PyTuple_GetItem(args, 0);
 
-
-    // In python 2.x pSohHdl is PyLong on 64bit systems, Pyint on 32bit systems
-#if PY_VERSION_HEX < 0x03000000
-        if (PyLong_Check(pSihHdl)) {
-            hdl = (gpi_sim_hdl)PyLong_AsUnsignedLong(pSihHdl);
-        }
-        else if (PyInt_Check(pSihHdl)) {
-            hdl = (gpi_sim_hdl)PyInt_AsLong(pSihHdl);
-        }
-        else {
-            PyErr_SetString(PyExc_RuntimeError, "Failed to deregister callback!");
-            return NULL;
-        }
-        
-#else  // In python3.x all integers are PyLong
-        hdl = (gpi_sim_hdl)PyLong_AsVoidPtr(pSihHdl);
-#endif
-        
+    hdl = to_hdl(pSihHdl);
 
     gpi_deregister_callback(hdl);
 
