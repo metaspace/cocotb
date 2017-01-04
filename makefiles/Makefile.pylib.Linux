@@ -33,7 +33,7 @@ ifneq ($(COCOTB_PYTHON_DEBUG),)
 DBG_PYTHON_VERSION=$(shell python -c 'from __future__ import print_function; import distutils.sysconfig; print(distutils.sysconfig.get_python_version())')
 PYTHON_BIN=python$(DBG_PYTHON_VERSION)-dbg
 else
-PYTHON_BIN=python
+PYTHON_BIN=python3
 endif
 
 NATIVE_ARCH=$(shell uname -m)
