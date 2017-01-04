@@ -96,11 +96,11 @@ ifdef SCRIPT_FILE_HEADER
 endif
 	echo "alib $(RTL_LIBRARY)" >> $@
 	echo "set worklib $(RTL_LIBRARY)" >> $@
-ifneq ($(VHDL_SOURCES),)
-	echo "acom $(ACOM_ARGS) $(VHDL_SOURCES)" >> $@
-endif
 ifneq ($(VERILOG_SOURCES),)
 	echo "alog $(ALOG_ARGS) $(VERILOG_SOURCES)" >> $@
+endif
+ifneq ($(VHDL_SOURCES),)
+	echo "acom $(ACOM_ARGS) $(VHDL_SOURCES)" >> $@
 endif
 ifdef SCRIPT_FILE
 	echo "do $(SCRIPT_FILE)" >> $@
