@@ -298,7 +298,17 @@ int embed_sim_init(gpi_sim_info_t *info)
         LOG_DEBUG("_initialise_testbench successful");
         Py_DECREF(cocotb_retval);
     } else {
-        PyErr_Print();
+        PyObject *ptype, *pvalue, *ptraceback;
+        PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+        PyErr_NormalizeException(&ptype, &pvalue, &ptraceback);
+        if (!ptype || !pvalue || !ptraceback) {
+            fprintf(stderr, "No python exception information available\n");
+        }
+        else {
+            PyObject *pstr = PyObject_Str(pvalue);
+            char *pStrErrorMessage =  PyUnicode_AsUTF8AndSize(pstr, NULL);
+            fprintf(stderr, "Error: %s\n", pStrErrorMessage);
+        }
         fprintf(stderr,"Cocotb initialisation failed - exiting\n");
         goto cleanup;
     }
