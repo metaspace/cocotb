@@ -614,3 +614,24 @@ def coverageSection(*coverItems):
 
     return _nested(coverItems)
 
+class CoverSet:
+    def __init__(self, *args):
+        self.cover_points = list()
+        for cp in args:
+            self.cover_points.append(cp)
+
+    def __call__(self, f):
+        for cp in reversed(self.cover_points):
+            f = cp(f)
+        return f
+
+            
+    def better_coverage(self, *args):
+        """
+            Return True if invoking test with cb_args causes any cover point in this group to become better covered.
+        """
+        for cp in self.cover_points:
+            if cp.better_coverage(*args):
+                return True
+
+        return False
