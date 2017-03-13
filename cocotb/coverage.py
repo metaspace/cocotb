@@ -268,6 +268,16 @@ class CoverPoint(CoverItem):
         return hits
 
 
+    def better_coverage(self, *args):
+        """
+            Return True if invoking test with cb_args would cause a currently uncovered bin to more covered.
+        """
+        hits = self.bins_for_input(args, remove_self=False)
+        for hit in hits:
+            if self._hits[hit] < self._at_least:
+                return True
+        return False
+
     @property
     def size(self):
         return self._size
