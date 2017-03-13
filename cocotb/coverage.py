@@ -54,6 +54,7 @@ import itertools
 # global variable collecting coverage in a prefix tree (trie)
 coverage_db = {}
 
+# TODO: Does not support keyword arguments on test functions
 
 class CoverItem(object):
     """
