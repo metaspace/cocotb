@@ -356,6 +356,7 @@ class CoverCross(CoverItem):
             self._hits = dict.fromkeys(itertools.product(*bins_lists), 0)
 
             # remove ignore bins from _hits map if relation is true
+            rm_list = list()
             for x_bins in self._hits.keys():
                 for ignore_bins in ign_bins:
                     remove = True
@@ -364,7 +365,11 @@ class CoverCross(CoverItem):
                             if not self._relation(ignore_bins[ii], x_bins[ii]):
                                 remove = False
                     if remove:
-                        del self._hits[x_bins]
+                        # Do not attempt to remove while iterating self._hits dict
+                        rm_list.append(x_bins)
+                        
+            for x_bins in rm_list:
+                del self._hits[x_bins]
 
             self._size = self._weight * len(self._hits)
             self._parent._update_size(self._size)
