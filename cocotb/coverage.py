@@ -222,24 +222,18 @@ class CoverPoint(CoverItem):
             current_coverage = self.coverage
             self._new_hits = []
 
-            # if function is bound then remove "self" from the arguments list
-            if self._decorates_method ^ self._trans_is_method:
-                result = self._transformation(*cb_args[1:])
-            else:
-                result = self._transformation(*cb_args)
 
-            # compare function result using relation function with matching
-            # bins
-            for bins in self._hits:
-                if self._relation(result, bins):
-                    self._hits[bins] += 1
-                    self._new_hits.append(bins)
-                    # check bins callbacks
-                    if bins in self._bins_callbacks:
-                        self._bins_callbacks[bins]()
-                    # if injective function, continue through all bins
-                    if not self._injection:
-                        break
+            # What bins do we hit?
+            hits = self.bins_for_input(cb_args)
+
+            # For each hit
+            for bins in hits:
+                # Increment hit counter
+                self._hits[bins] += 1
+                self._new_hits.append(bins)
+                # check bins callbacks
+                if bins in self._bins_callbacks:
+                    self._bins_callbacks[bins]()
 
             # notify parent about new coverage level
             self._parent._update_coverage(self.coverage - current_coverage)
@@ -252,6 +246,27 @@ class CoverPoint(CoverItem):
 
             return f(*cb_args, **cb_kwargs)
         return _wrapped_function
+
+    def bins_for_input(self, cb_args, remove_self=True):
+        # List of bins that we hit
+        hits = []
+        # if function is bound then remove "self" from the arguments list
+        if remove_self and (self._decorates_method ^ self._trans_is_method):
+            result = self._transformation(*cb_args[1:])
+        else:
+            result = self._transformation(*cb_args)
+
+        # compare function result using relation function with matching
+        # bins
+        for bins in self._hits:
+            # Decide if bint was hit
+            if self._relation(result, bins):
+                hits.append(bins)
+                # if injective function, continue through all bins
+                if not self._injection:
+                    break
+        return hits
+
 
     @property
     def size(self):
