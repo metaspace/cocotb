@@ -166,6 +166,15 @@ class CoverPoint(CoverItem):
         if not name in coverage_db:
             CoverItem.__init__(self, name)
             self._transformation = xf
+            # if transformation function not defined, simply return arguments
+            if self._transformation is None:
+                def dummy_f(*cb_args):  # return a tuple or single object
+                    if len(cb_args) > 1:
+                        return cb_args
+                    else:
+                        return cb_args[0]
+                self._transformation = dummy_f
+                
             # equality operator is the defult bins matching relation
             self._relation = rel if rel is not None else operator.eq
             self._weight = weight
@@ -191,14 +200,7 @@ class CoverPoint(CoverItem):
         @wraps(f)
         def _wrapped_function(*cb_args, **cb_kwargs):
 
-            # if transformation function not defined, simply return arguments
-            if self._transformation is None:
-                def dummy_f(*cb_args):  # return a tuple or single object
-                    if len(cb_args) > 1:
-                        return cb_args
-                    else:
-                        return cb_args[0]
-                self._transformation = dummy_f
+            
 
             # for the first time only check if decorates method in the class
             if self._decorates_method is None:
